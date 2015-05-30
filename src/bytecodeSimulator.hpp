@@ -3,29 +3,31 @@
 
 #include <iostream>
 #include <string>
-#include<stack>
+#include <stack>
+#include <vector>
 #include <assert.h>
+#include "instruction.hpp"
 #include "bytecodeEnumType.hpp"
 //#include"bytecodeEnumType.hpp"
 
 //bytecodeSimulator: runs bytecode. Does not handle creating bytecode
-class bytecodeSimulator{
+class bytecodeSimulator {
 	private:
-		std::string bytecode;
-		std::string::iterator bytecodeIterator;
-		
-		//Define our evaluation stack
-		std::stack<datasize_t> evaluationStack;
+		std::vector<harbor::instruction> instruction_;
+		std::vector<harbor::instruction>::iterator instructionIterator_;
+
+		//Define our registers
+		std::vector<wordwidth_t> register_;
 		
 		//evaluate: bytecode -> void
 		//runs the given bytecode. Results are highly variable.
-		void evaluate(bytecode_t inst);
+		void evaluate(harbor::instruction inst);
 		
 	public:
 		
 		//assign_bytecode: string -> void
 		//assigns internal bytecode to the given string
-		void assign_bytecode(std::string bytecode);
+		void assign_instructions(std::vector<harbor::instruction> bytecode);
 		
 		//run: void -> void
 		//runs the internal bytecode
