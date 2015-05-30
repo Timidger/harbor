@@ -1,56 +1,49 @@
-#include"bytecodeSimulator.hpp"
+#include "instruction.hpp"
+#include "bytecodeSimulator.hpp"
+#include "bytecodeEnumType.hpp"
 
 //evaluate: bytecode -> void
 //runs the given bytecode. Results are highly variable.
-void bytecodeSimulator::evaluate(bytecode_t inst){
-	switch(inst){
+void bytecodeSimulator::evaluate(harbor::instruction inst){
+	switch(inst.opcode()){
 	case INST_PUTC:
-		std::cout << "INST_PUTC " << evaluationStack.top() << std::endl;
-		evaluationStack.pop();
+		std::cout << "INST_PUTC " << (char) register_[inst.source0()] << std::endl;
 		break;
 	
 	case INST_PUTI:
-		std::cout << "INST_PUTI " << +(unsigned char)evaluationStack.top() << std::endl;
-		evaluationStack.pop();
+		std::cout << "INST_PUTI " << register_[inst.source0()] << std::endl;
 		break;	
 	
 	case INST_PUTS:
-			std::cout << "INST_PUTS " << +(signed char)evaluationStack.top() << std::endl;
-			evaluationStack.pop();
-			break;	
+		std::cout << "INST_PUTS " << register_[inst.source0()] << std::endl;
+		break;
 		
 	case INST_GET:{
 		char input;
 		std::cin >> input;
-		evaluationStack.push(input);
+		register_[inst.destination()] = input;
 		}
 		break;
 	
 	case INST_IMD:
-		evaluationStack.push(*(++bytecodeIterator));
+		register_[inst.destination()] = inst.immediate();
 		break;
 		
 	case INST_JMP:
-		bytecodeIterator += evaluationStack.top();
-		evaluationStack.pop();
+		instructionIterator_ += inst.immediate();
 		break;
 		
 	case INST_BR:{
-			bool shouldJump = evaluationStack.top();
-			evaluationStack.pop();
-			char offset = evaluationStack.top();
-			evaluationStack.pop();
+			bool shouldJump = register_[inst.source0()];
+			char offset = inst.immediate();
 			if(shouldJump){
-				bytecodeIterator += offset;
+				instructionIterator_ += offset;
 			}
 		}
 		break;	
 		
 	case INST_ADD:
-		{char a = evaluationStack.top();
-		evaluationStack.pop();
-		evaluationStack.push(evaluationStack.top() + a);}
-		evaluationStack.pop();
+			register_[inst.destination()] = register_[inst.source0()] + register_[inst.source1()];
 		break;
 		
 	default:
@@ -61,17 +54,15 @@ void bytecodeSimulator::evaluate(bytecode_t inst){
 		
 //assign_bytecode: string -> void
 //assigns internal bytecode to the given string
-void bytecodeSimulator::assign_bytecode(std::string bytecode){
-	this->bytecode.assign(bytecode);
+void bytecodeSimulator::assign_instructions(std::vector<harbor::instruction> instructions){
+	instruction_.assign(instructions.begin(),instructions.end());
 }
 
 //run: void -> void
 //runs the internal bytecode
-void bytecodeSimulator::run(){
-	bytecode_t inst;
-	for(bytecodeIterator = bytecode.begin(); bytecodeIterator != bytecode.end(); bytecodeIterator++){
-		inst = *bytecodeIterator;
-		evaluate(inst);
+void bytecodeSimulator::run() {
+	for(instructionIterator_= instruction_.begin(); instructionIterator_ != instruction_.end(); instructionIterator_++) {
+		evaluate(*instructionIterator_);
 	}
 }
 

@@ -33,6 +33,6 @@ int main(int argc, char *argv[])
 	
 	//create a simulator instance, get bytecode from reader, run
 	bytecodeSimulator simulator;
-	simulator.assign_bytecode(reader.get_bytecode());
+	simulator.assign_instructions(reader.get_instructions());
 	simulator.run();
 }
